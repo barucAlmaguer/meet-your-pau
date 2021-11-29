@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Game } from "./components";
 
 const AppContainer = styled.div`
   display: grid;
@@ -10,11 +11,23 @@ const AppContainer = styled.div`
   color: white;
 `;
 
+const SidebarContainer = styled.nav`
+  border: 1px solid pink;
+`;
+
+const GameContainer = styled.main`
+  display: grid;
+  place-items: center;
+  border: 1px solid red;
+`;
+
 function App() {
   return (
     <AppContainer>
-      <div>sidebar</div>
-      <div>Pau game goes here :nerd:</div>
+      <SidebarContainer>sidebar</SidebarContainer>
+      <GameContainer>
+        <Game />
+      </GameContainer>
     </AppContainer>
   );
 }
