@@ -4,12 +4,40 @@ import { atomFamily, useRecoilState, useSetRecoilState } from "recoil";
 import { RotateCw } from "react-feather";
 import honey1 from "../../assets/honey-1.png";
 // import honey2 from "../../assets/honey-2.png";
-// import honey3 from "../../assets/honey-xmas.png";
-import vainilla1 from "../../assets/vainilla-1.png";
+import honey3 from "../../assets/honey-xmas.png";
+// import vainilla1 from "../../assets/vainilla-1.png";
 import vainilla2 from "../../assets/vainilla-2.png";
 import vainilla3 from "../../assets/vainilla-xmas.png";
 
+type DirectionOption = "top" | "right" | "bottom" | "left";
 type RotationOption = 0 | 90 | 180 | 270 | 360;
+
+const testBoardPieces: Array<Record<DirectionOption, string>> = [
+  {
+    top: honey1,
+    right: vainilla2,
+    bottom: vainilla3,
+    left: honey3,
+  },
+  {
+    top: honey1,
+    right: vainilla2,
+    bottom: honey3,
+    left: vainilla2,
+  },
+  {
+    top: honey3,
+    right: vainilla2,
+    bottom: honey1,
+    left: vainilla3,
+  },
+  {
+    top: honey1,
+    right: honey3,
+    bottom: vainilla2,
+    left: vainilla3,
+  },
+];
 
 const nextRotation: Record<RotationOption, RotationOption> = {
   0: 90,
@@ -63,50 +91,47 @@ const BoardPieceContainer = styled.div`
 `;
 
 interface BoardPieceImageProps {
-  $position: "top" | "right" | "bottom" | "left";
+  $position: DirectionOption;
+  $imgSource: string;
 }
 
 function getPositioningStyles({ $position }: BoardPieceImageProps) {
+  // ! For full-width images:
+  // ! transform: translate(-50%, -50%) rotate(45deg);
   switch ($position) {
     case "top":
       return css`
-        background-size: contain;
-        background-image: url(${vainilla1});
         top: 0;
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) rotate(45deg);
       `;
     case "right":
       return css`
-        background-size: contain;
-        background-image: url(${vainilla2});
         transform: rotate(90deg);
         right: 0;
         top: 50%;
-        transform: translate(50%, -50%) rotate(90deg);
+        transform: translate(50%, -50%) rotate(45deg);
       `;
     case "bottom":
       return css`
-        background-size: contain;
-        background-image: url(${vainilla3});
         bottom: 0;
         left: 50%;
-        transform: translate(-50%, 50%);
+        transform: translate(-50%, 50%) rotate(45deg);
       `;
     case "left":
       return css`
-        background-size: contain;
-        background-image: url(${honey1});
         top: 50%;
         left: 0;
-        transform: translate(-50%, -50%) rotate(90deg);
+        transform: translate(-50%, -50%) rotate(45deg);
       `;
   }
 }
 
 const BoardPieceImage = styled.img<BoardPieceImageProps>`
   position: absolute;
-  width: 30%;
+  background-size: contain;
+  background-image: url(${({ $imgSource }) => $imgSource});
+  width: 70%;
   height: 70%;
   ${getPositioningStyles}
 `;
@@ -159,10 +184,22 @@ const BoardPiece: React.FC<{ position: number }> = ({ children, position }) => {
           <RotateCw width={16} height={16} />
         </RotationHandlerButton>
         <BoardPieceContainer style={{ transform: `rotate(${rotation}deg)` }}>
-          <BoardPieceImage $position="top" />
-          <BoardPieceImage $position="right" />
-          <BoardPieceImage $position="bottom" />
-          <BoardPieceImage $position="left" />
+          <BoardPieceImage
+            $position="top"
+            $imgSource={testBoardPieces[position].top}
+          />
+          <BoardPieceImage
+            $position="right"
+            $imgSource={testBoardPieces[position].right}
+          />
+          <BoardPieceImage
+            $position="bottom"
+            $imgSource={testBoardPieces[position].bottom}
+          />
+          <BoardPieceImage
+            $position="left"
+            $imgSource={testBoardPieces[position].left}
+          />
         </BoardPieceContainer>
       </BoardPieceWrapper>
     </Draggable>
