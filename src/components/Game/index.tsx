@@ -1,10 +1,10 @@
 import Draggable from "react-draggable";
 import styled, { css } from "styled-components";
-import { atomFamily, useRecoilState } from "recoil";
+import { atomFamily, useRecoilState, useSetRecoilState } from "recoil";
 import { RotateCw } from "react-feather";
 import honey1 from "../../assets/honey-1.png";
-import honey2 from "../../assets/honey-2.png";
-import honey3 from "../../assets/honey-xmas.png";
+// import honey2 from "../../assets/honey-2.png";
+// import honey3 from "../../assets/honey-xmas.png";
 import vainilla1 from "../../assets/vainilla-1.png";
 import vainilla2 from "../../assets/vainilla-2.png";
 import vainilla3 from "../../assets/vainilla-xmas.png";
@@ -22,6 +22,17 @@ const nextRotation: Record<RotationOption, RotationOption> = {
 const pieceRotationState = atomFamily<RotationOption, number>({
   key: "pieceRotation",
   default: 0,
+});
+
+interface TranslateData {
+  deltaX: number;
+  deltaY: number;
+}
+
+// each piece has a translation (the amount of pixels the user moved it)
+const pieceOffsetState = atomFamily<TranslateData | undefined, number>({
+  key: "pieceOffset",
+  default: undefined,
 });
 
 const BoardContainer = styled.div<{ $size: number }>`
@@ -60,7 +71,7 @@ function getPositioningStyles({ $position }: BoardPieceImageProps) {
     case "top":
       return css`
         background-size: contain;
-        background-image: url(${honey1});
+        background-image: url(${vainilla1});
         top: 0;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -68,7 +79,7 @@ function getPositioningStyles({ $position }: BoardPieceImageProps) {
     case "right":
       return css`
         background-size: contain;
-        background-image: url(${honey2});
+        background-image: url(${vainilla2});
         transform: rotate(90deg);
         right: 0;
         top: 50%;
@@ -77,7 +88,7 @@ function getPositioningStyles({ $position }: BoardPieceImageProps) {
     case "bottom":
       return css`
         background-size: contain;
-        background-image: url(${honey3});
+        background-image: url(${vainilla3});
         bottom: 0;
         left: 50%;
         transform: translate(-50%, 50%);
@@ -85,7 +96,7 @@ function getPositioningStyles({ $position }: BoardPieceImageProps) {
     case "left":
       return css`
         background-size: contain;
-        background-image: url(${vainilla1});
+        background-image: url(${honey1});
         top: 50%;
         left: 0;
         transform: translate(-50%, -50%) rotate(90deg);
@@ -128,8 +139,16 @@ const BoardPieceWrapper = styled.span`
 
 const BoardPiece: React.FC<{ position: number }> = ({ children, position }) => {
   const [rotation, setRotation] = useRecoilState(pieceRotationState(position));
+  const setOffset = useSetRecoilState(pieceOffsetState(position));
+
   return (
-    <Draggable cancel="button" grid={[20, 20]}>
+    <Draggable
+      cancel="button"
+      grid={[20, 20]}
+      onStop={(_, data) => {
+        setOffset(data);
+      }}
+    >
       {/* span to allow transforming the inner element freely without transformation clashes */}
       <BoardPieceWrapper>
         <RotationHandlerButton
@@ -151,7 +170,7 @@ const BoardPiece: React.FC<{ position: number }> = ({ children, position }) => {
 };
 
 function Game() {
-  const gameSize = 3;
+  const gameSize = 2;
   const gamePieces = new Array(gameSize * gameSize)
     .fill(0)
     .map((_, i) => <BoardPiece key={i} position={i} />);
