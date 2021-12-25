@@ -1,21 +1,18 @@
 import styled from "styled-components";
 import { Game } from "./components";
 import boardBackground from "./assets/background-wood.jpeg";
+import { Sidebar } from "./components/Sidebar";
 
 const AppContainer = styled.div`
   display: grid;
   grid-template-areas: sidebar game;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 260px 1fr;
   /* grid-template-areas: game;
   grid-template-columns: 1fr; */
   width: 100%;
   height: 100%;
   background-color: brown;
   color: white;
-`;
-
-const SidebarContainer = styled.nav`
-  /* border: 1px solid pink; */
 `;
 
 const GameContainer = styled.main`
@@ -27,7 +24,7 @@ const GameContainer = styled.main`
 function App() {
   return (
     <AppContainer>
-      <SidebarContainer>sidebar</SidebarContainer>
+      <Sidebar />
       <GameContainer>
         <Game />
       </GameContainer>
