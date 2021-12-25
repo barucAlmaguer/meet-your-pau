@@ -1,4 +1,7 @@
-import { atom } from "recoil";
+import { atom, atomFamily } from "recoil";
+
+export type DirectionOption = "top" | "right" | "bottom" | "left";
+export type RotationOption = 0 | 90 | 180 | 270 | 360;
 
 /**
  * TODO:
@@ -34,4 +37,52 @@ export const pictureCountState = atom<PictureCount>({
 export const petChoiceState = atom<PetOption>({
   key: "petChoice",
   default: "Vainihoney",
+});
+
+export const shouldShuffleCardsState = atom<boolean>({
+  key: "shouldShuffleCards",
+  default: true,
+});
+export const shouldApplyRotationsState = atom<boolean>({
+  key: "shouldApplyRotations",
+  default: true,
+});
+
+// each piece has a configuration of its own:
+export interface GamePieceImages {
+  top: string;
+  right: string;
+  bottom: string;
+  left: string;
+}
+
+export const pieceImagesState = atomFamily<GamePieceImages, number>({
+  key: "pieceImages",
+  default: {
+    top: "",
+    right: "",
+    bottom: "",
+    left: "",
+  },
+});
+
+interface TranslateData {
+  deltaX: number;
+  deltaY: number;
+}
+
+// each piece has a translation (the amount of pixels the user moved it)
+export const pieceOffsetState = atomFamily<TranslateData | undefined, number>({
+  key: "pieceOffset",
+  default: undefined,
+});
+
+export const pieceRotationState = atomFamily<RotationOption, number>({
+  key: "pieceRotation",
+  default: 0,
+});
+
+export const gamePiecesState = atom<number[]>({
+  key: "gamePieces",
+  default: [],
 });

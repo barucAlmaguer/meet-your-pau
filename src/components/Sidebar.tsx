@@ -8,8 +8,11 @@ import {
   cardCountState,
   petChoiceState,
   appState,
+  shouldShuffleCardsState,
+  shouldApplyRotationsState,
 } from "../appAtoms";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { useGameInitialization } from "../gameLogic";
 
 const SidebarContainer = styled.nav`
   display: flex;
@@ -19,7 +22,8 @@ const SidebarContainer = styled.nav`
   gap: 16px;
   font-family: arial;
   flex-direction: column;
-  & h1 {
+  & h1,
+  span {
     color: white;
   }
   & input {
@@ -46,41 +50,79 @@ export const Sidebar: React.FC = () => {
   const [cardCount, setCardCount] = useRecoilState(cardCountState);
   const [pictureCount, setPictureCount] = useRecoilState(pictureCountState);
   const [petChoice, setPetChoice] = useRecoilState(petChoiceState);
-  const [appStatus, setAppStatus] = useRecoilState(appState);
+  const [shouldShuffleCards, setShouldShuffleCards] = useRecoilState(
+    shouldShuffleCardsState
+  );
+  const [shouldApplyRotations, setShouldApplyRotations] = useRecoilState(
+    shouldApplyRotationsState
+  );
+
+  const setAppStatus = useSetRecoilState(appState);
+  const startGame = useGameInitialization();
 
   return (
     <SidebarContainer>
       <h1>Configuración:</h1>
-      <Select
-        value={{ label: cardCount, value: cardCount }}
-        placeholder="Cuantas cartas?"
-        options={cardCountOptions.map((p) => ({
-          label: p,
-          value: p,
-        }))}
-        onChange={(newValue) => setCardCount(newValue?.value ?? 4)}
-      />
-      <Select
-        value={{ label: pictureCount, value: pictureCount }}
-        placeholder="Cuantas fotos?"
-        options={picCountOptions.map((p) => ({
-          label: p,
-          value: p,
-        }))}
-        onChange={(newValue) => setPictureCount(newValue?.value ?? 4)}
-      />
-      <Select
-        value={{ label: petChoice, value: petChoice }}
-        placeholder="Fotitos de quien?"
-        options={petOptions.map((p) => ({ label: p, value: p }))}
-        onChange={(newValue) => setPetChoice(newValue?.value ?? "Vainihoney")}
-      />
+      <label>
+        <span>cuantas cartas?</span>
+        <Select
+          value={{ label: cardCount, value: cardCount }}
+          placeholder="Cuantas cartas?"
+          options={cardCountOptions.map((p) => ({
+            label: p,
+            value: p,
+          }))}
+          onChange={(newValue) => setCardCount(newValue?.value ?? 4)}
+        />
+      </label>
+      <label>
+        <span>cuantas fotos?</span>
+        <Select
+          value={{ label: pictureCount, value: pictureCount }}
+          placeholder="Cuantas fotos?"
+          options={picCountOptions.map((p) => ({
+            label: p,
+            value: p,
+          }))}
+          onChange={(newValue) => setPictureCount(newValue?.value ?? 4)}
+        />
+      </label>
+      <label>
+        <span>fotitos de quien?</span>
+        <Select
+          value={{ label: petChoice, value: petChoice }}
+          placeholder="Fotitos de quien?"
+          options={petOptions.map((p) => ({ label: p, value: p }))}
+          onChange={(newValue) => setPetChoice(newValue?.value ?? "Vainihoney")}
+        />
+      </label>
+      <span style={{ display: "flex", alignItems: "center" }}>
+        <input
+          type="checkbox"
+          checked={shouldShuffleCards}
+          onChange={(e) => {
+            setShouldShuffleCards(e.currentTarget.checked);
+          }}
+        />
+        <span style={{ paddingLeft: 8 }}>revolver cartas?</span>
+      </span>
+      <span style={{ display: "flex", alignItems: "center" }}>
+        <input
+          type="checkbox"
+          checked={shouldApplyRotations}
+          onChange={(e) => {
+            setShouldApplyRotations(e.currentTarget.checked);
+          }}
+        />
+        <span style={{ paddingLeft: 8 }}>girar cartas?</span>
+      </span>
       <button
         onClick={() => {
-          setAppStatus(appStatus === "SETUP" ? "PLAYING" : "SETUP");
+          setAppStatus("PLAYING");
+          startGame();
         }}
       >
-        {appStatus === "SETUP" ? "INICIAR!" : "IR A MENU"}
+        INICIAR!
       </button>
     </SidebarContainer>
   );

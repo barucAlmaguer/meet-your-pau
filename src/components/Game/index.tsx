@@ -1,43 +1,15 @@
 import Draggable from "react-draggable";
 import styled, { css } from "styled-components";
-import { atomFamily, useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { RotateCw } from "react-feather";
-import honey1 from "../../assets/honey-1.png";
-// import honey2 from "../../assets/honey-2.png";
-import honey3 from "../../assets/honey-xmas.png";
-// import vainilla1 from "../../assets/vainilla-1.png";
-import vainilla2 from "../../assets/vainilla-2.png";
-import vainilla3 from "../../assets/vainilla-xmas.png";
-
-type DirectionOption = "top" | "right" | "bottom" | "left";
-type RotationOption = 0 | 90 | 180 | 270 | 360;
-
-const testBoardPieces: Array<Record<DirectionOption, string>> = [
-  {
-    top: honey1,
-    right: vainilla2,
-    bottom: vainilla3,
-    left: honey3,
-  },
-  {
-    top: honey1,
-    right: vainilla2,
-    bottom: honey3,
-    left: vainilla2,
-  },
-  {
-    top: honey3,
-    right: vainilla2,
-    bottom: honey1,
-    left: vainilla3,
-  },
-  {
-    top: honey1,
-    right: honey3,
-    bottom: vainilla2,
-    left: vainilla3,
-  },
-];
+import {
+  DirectionOption,
+  gamePiecesState,
+  pieceImagesState,
+  pieceOffsetState,
+  pieceRotationState,
+  RotationOption,
+} from "../../appAtoms";
 
 const nextRotation: Record<RotationOption, RotationOption> = {
   0: 90,
@@ -46,22 +18,6 @@ const nextRotation: Record<RotationOption, RotationOption> = {
   270: 360,
   360: 90,
 };
-
-const pieceRotationState = atomFamily<RotationOption, number>({
-  key: "pieceRotation",
-  default: 0,
-});
-
-interface TranslateData {
-  deltaX: number;
-  deltaY: number;
-}
-
-// each piece has a translation (the amount of pixels the user moved it)
-const pieceOffsetState = atomFamily<TranslateData | undefined, number>({
-  key: "pieceOffset",
-  default: undefined,
-});
 
 const BoardContainer = styled.div<{ $size: number }>`
   display: grid;
@@ -165,6 +121,7 @@ const BoardPieceWrapper = styled.span`
 const BoardPiece: React.FC<{ position: number }> = ({ children, position }) => {
   const [rotation, setRotation] = useRecoilState(pieceRotationState(position));
   const setOffset = useSetRecoilState(pieceOffsetState(position));
+  const pieceImages = useRecoilValue(pieceImagesState(position));
 
   return (
     <Draggable
@@ -184,22 +141,10 @@ const BoardPiece: React.FC<{ position: number }> = ({ children, position }) => {
           <RotateCw width={16} height={16} />
         </RotationHandlerButton>
         <BoardPieceContainer style={{ transform: `rotate(${rotation}deg)` }}>
-          <BoardPieceImage
-            $position="top"
-            $imgSource={testBoardPieces[position].top}
-          />
-          <BoardPieceImage
-            $position="right"
-            $imgSource={testBoardPieces[position].right}
-          />
-          <BoardPieceImage
-            $position="bottom"
-            $imgSource={testBoardPieces[position].bottom}
-          />
-          <BoardPieceImage
-            $position="left"
-            $imgSource={testBoardPieces[position].left}
-          />
+          <BoardPieceImage $position="top" $imgSource={pieceImages.top} />
+          <BoardPieceImage $position="right" $imgSource={pieceImages.right} />
+          <BoardPieceImage $position="bottom" $imgSource={pieceImages.bottom} />
+          <BoardPieceImage $position="left" $imgSource={pieceImages.left} />
         </BoardPieceContainer>
       </BoardPieceWrapper>
     </Draggable>
@@ -207,11 +152,16 @@ const BoardPiece: React.FC<{ position: number }> = ({ children, position }) => {
 };
 
 function Game() {
-  const gameSize = 2;
-  const gamePieces = new Array(gameSize * gameSize)
-    .fill(0)
-    .map((_, i) => <BoardPiece key={i} position={i} />);
-  return <BoardContainer $size={gameSize}>{gamePieces}</BoardContainer>;
+  const gamePieces = useRecoilValue(gamePiecesState);
+  // square root lol
+  const gameSize = { 4: 2, 9: 3 }[gamePieces.length]!;
+  return (
+    <BoardContainer $size={gameSize}>
+      {gamePieces.map((_, i) => (
+        <BoardPiece key={i} position={i} />
+      ))}
+    </BoardContainer>
+  );
 }
 
 export { Game };
